@@ -28,16 +28,14 @@ var (
 )
 
 func init() {
-	bearing["dm"] = 90                                                        //節圓直徑
-	bearing["pcs"] = 4                                                        //軸承顆數
-	bearing["f0"] = 0.088                                                     //軸承與潤滑定數
-	bearing["v"] = 68                                                         //黏度
-	bearing["rpm"] = 28000                                                    //轉速
-	bearing["c0"] = 46000                                                     //徑額定負荷
-	bearing["fu"] = 0.5                                                       //推力賀重
-	bearing["fr"] = 5                                                         //徑向賀重
-	bearing["b"] = 15                                                         //接觸角
-	bearing["p0"] = bearing["fu"] * 9.81 / math.Tan(bearing["b"]*math.Pi/180) //靜等價賀重
+	bearing["dm"] = 90     //節圓直徑
+	bearing["pcs"] = 4     //軸承顆數
+	bearing["v"] = 68      //黏度
+	bearing["rpm"] = 28000 //轉速
+	bearing["c0"] = 46000  //徑額定負荷
+	bearing["fu"] = 0.5    //推力賀重
+	bearing["fr"] = 5      //徑向賀重
+	bearing["b"] = 15      //接觸角	                                                                
 
 	state["lube"] = lubearr[lube]    //潤滑方式
 	state["btype"] = btypearr[btype] //軸承型式
@@ -47,9 +45,10 @@ func main() {
 	calc() //計算出結果並丟進bearing map裏面
 	prt()  //印出結果
 
-	order := getorder()//問問題
-	CallClear() //清空
-	dorder(order) //依照命令判斷參數正確與否並丟進bearing map
+	order := getorder() //問問題
+	CallClear()         //清空
+	dorder(order)       //依照命令判斷參數正確與否並丟進bearing 
+	//fmt.Println(bearing["f0"])
 
 	main()
 	//show()
@@ -60,6 +59,14 @@ func dorder(order string) {
 	for i := 0; i < len(oarr[0]); i++ {
 		//fmt.Println(oarr[0][i])	//主命令
 		check := 0
+		if oarr[0][i] == "btype" {
+			check = 1
+			btype, _ = strconv.Atoi(oarr[1][i])
+		} else if oarr[0][i] == "lube" {
+			check = 1
+			lube, _ = strconv.Atoi(oarr[1][i])
+		}
+
 		for j := 0; j < len(para); j++ {
 			if para[j] == oarr[0][i] {
 				check = 1
@@ -77,7 +84,7 @@ func splito(order string) [2][]string {
 	var oarr [2][]string
 	for i := 0; i < len(osplit); i++ {
 		a := strings.Split(osplit[i], "=")
-		fmt.Println(a)
+		//fmt.Println(a)
 		oarr[0] = append(oarr[0], a[0])
 		oarr[1] = append(oarr[1], a[1])
 	}
@@ -101,6 +108,13 @@ func prt() { //印出當前參數
 		valarr = append(valarr, strconv.FormatFloat(bearing[para[i]], 'f', -1, 32))
 	}
 	prtable(parades, para, valarr)
+
+	fmt.Println("")
+	fmt.Println("選擇常數")
+	fmt.Println("==========")
+	fmt.Println("潤滑方式, lube," + lubearr[lube] + "  (0=oilair  1=grease 2=oiljet)")
+	fmt.Println("軸承型式,btype," + btypearr[btype] + "  (0=angular 1=roller 2=dgroove)")
+
 	fmt.Println("")
 	fmt.Println("計算常數")
 	fmt.Println("==========")
@@ -109,21 +123,23 @@ func prt() { //印出當前參數
 		rutarr = append(rutarr, strconv.FormatFloat(bearing[result[i]], 'f', -1, 32))
 	}
 	prtable(resultdes, result, rutarr)
-
 }
 
 func calc() { //計算方程式
-	bearing["f1"] = 0.001 * bearing["pcs"] * math.Pow(bearing["p0"]/bearing["c0"], 0.33)
-	bearing["f0"] = f0[lube][btype]
-	bearing["mv"] = bearing["pcs"] * bearing["f0"] * math.Pow(bearing["dm"], 3) * math.Pow(bearing["v"]*bearing["rpm"], 0.6666666667) * math.Pow(10, -11)
-
-	bearing["g1p0"] = 0.9*bearing["fu"]/math.Tan(bearing["b"]) - 0.1*bearing["fr"]
+	bearing["p0"] = math.Floor(bearing["fu"]*9.81/math.Tan(bearing["b"]*math.Pi/180)*1000+0.5) / 1000 //靜等價賀重
+	bearing["f0"] = f0[btype][lube]   //軸承與潤滑定數
+	bearing["f1"] = math.Floor(0.001*bearing["pcs"]*math.Pow(bearing["p0"]/bearing["c0"], 0.33)*10000000+0.5) / 10000000
+	
+	bearing["g1p0"] = math.Floor((0.9*bearing["fu"]/math.Tan(bearing["b"])-0.1*bearing["fr"])*100+0.5) / 100
+	//fmt.Println(bearing["g1p0"])
 	if bearing["g1p0"] < bearing["fr"] {
 		bearing["g1p0"] = bearing["fr"]
 	}
-	bearing["ml"] = bearing["f1"] * bearing["g1p0"] * bearing["dm"] * math.Pow(10, -3)
+
+	bearing["ml"] = math.Floor(bearing["f1"]*bearing["g1p0"]*bearing["dm"]*math.Pow(10, -3)*1000000+0.5) / 1000000
+	bearing["mv"] = math.Floor((bearing["pcs"]*bearing["f0"]*math.Pow(bearing["dm"], 3)*math.Pow(bearing["v"]*bearing["rpm"], (0.6666666667))*math.Pow(10, -11))*100000+0.5) / 100000
 	bearing["m"] = bearing["ml"] + bearing["mv"]
-	bearing["Q"] = 0.00234 * math.Pi * bearing["m"] * bearing["rpm"] * 60 * 2
+	bearing["Q"] = math.Floor(0.00234*math.Pi*bearing["m"]*bearing["rpm"]*60*2*1000+0.5) / 1000
 }
 
 //tool------------------------------------------------------------------------
