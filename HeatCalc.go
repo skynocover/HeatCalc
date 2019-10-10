@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"math"
-	"os"
-	"os/exec"
-	"runtime"
 	"strconv"
 	"strings"
+	"github.com/skynocover/gocmdtool"
 )
 
 var (
@@ -45,7 +43,7 @@ func main() {
 	prt()  //印出結果
 
 	order := getorder() //問問題
-	CallClear()         //清空
+	cmd.CallClear()         //清空
 	dorder(order)       //依照命令判斷參數正確與否並丟進bearing
 	main()
 
@@ -124,7 +122,7 @@ func prt() { //印出當前參數
 
 func calc() { //計算方程式
 	bearing["p0"] = math.Floor(bearing["fu"]*9.81/math.Tan(bearing["b"]*math.Pi/180)*100000+0.5) / 100000 //靜等價賀重
-	bearing["f0"] = f0[btype][lube]                                                                     //軸承與潤滑定數
+	bearing["f0"] = f0[btype][lube]                                                                       //軸承與潤滑定數
 
 	if btype == 0 { //軸承型式定數
 		bearing["f1"] = math.Floor(0.001*bearing["pcs"]*math.Pow(bearing["p0"]/bearing["c0"], 0.33)*1000000+0.5) / 10000000
@@ -174,26 +172,5 @@ func prtable(a []string, b []string, c []string) { //印出表格
 			fmt.Printf(" ")
 		}
 		fmt.Println(c[i] + ",")
-	}
-}
-
-func CallClear() { //清空用
-	var clear map[string]func()     //create a map for storing clear funcs
-	clear = make(map[string]func()) //Initialize it
-	clear["linux"] = func() {
-		cmd := exec.Command("clear") //Linux example, its tested
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-	clear["windows"] = func() {
-		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
-		cmd.Stdout = os.Stdout
-		cmd.Run()
-	}
-	value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
-	if ok {                          //if we defined a clear func for that platform:
-		value() //we execute it
-	} else { //unsupported platform
-		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
 }
