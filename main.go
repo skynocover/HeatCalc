@@ -1,134 +1,124 @@
 package main
 
-var (
-	opera topera
+import (
+	"os"
+	"os/exec"
+	"runtime"
 )
 
+var opera Topera
+
 func init() {
-	opera.dm.coefficient = "dm"
-	opera.dm.name = "節圓直徑"
-	opera.dm.value = 140
-	opera.dm.unit = "mm"
+	opera.Dm.coefficient = "dm"
+	opera.Dm.name = "節圓直徑"
+	opera.Dm.Value = 140
+	opera.Dm.unit = "mm"
 
-	opera.pcs.coefficient = "pcs"
-	opera.pcs.name = "顆數"
-	opera.pcs.value = 2
-	opera.pcs.unit = "pcs"
+	opera.Pcs.coefficient = "pcs"
+	opera.Pcs.name = "顆數"
+	opera.Pcs.Value = 2
+	opera.Pcs.unit = "pcs"
 
-	opera.v.coefficient = "v"
-	opera.v.name = "黏度"
-	opera.v.value = 25
-	opera.v.unit = "cSt"
+	opera.V.coefficient = "v"
+	opera.V.name = "黏度"
+	opera.V.Value = 25
+	opera.V.unit = "cst"
 
-	opera.rpm.coefficient = "rpm"
-	opera.rpm.name = "轉速"
-	opera.rpm.value = 600
-	opera.rpm.unit = "rpm"
+	opera.Rpm.coefficient = "rpm"
+	opera.Rpm.name = "轉速"
+	opera.Rpm.Value = 600
+	opera.Rpm.unit = "rpm"
 
-	opera.c0.coefficient = "c0"
-	opera.c0.name = "靜額定負荷"
-	opera.c0.value = 105000
-	opera.c0.unit = "N"
+	opera.C0.coefficient = "c0"
+	opera.C0.name = "靜額定負荷"
+	opera.C0.Value = 105000
+	opera.C0.unit = "N"
 
-	opera.fu.coefficient = "fu"
-	opera.fu.name = "推力荷重"
-	opera.fu.value = 8.6
-	opera.fu.unit = "kgf"
+	opera.Fu.coefficient = "fu"
+	opera.Fu.name = "推力荷重"
+	opera.Fu.Value = 8.6
+	opera.Fu.unit = "kgf"
 
-	opera.fr.coefficient = "fr"
-	opera.fr.name = "徑向荷重"
-	opera.fr.value = 6.8
-	opera.fr.unit = "kgf"
+	opera.Fr.coefficient = "fr"
+	opera.Fr.name = "徑向荷重"
+	opera.Fr.Value = 6.8
+	opera.Fr.unit = "kgf"
 
-	opera.b.coefficient = "b"
-	opera.b.name = "接觸角"
-	opera.b.value = 15
-	opera.b.unit = "度"
+	opera.B.coefficient = "b"
+	opera.B.name = "接觸角"
+	opera.B.Value = 15
+	opera.B.unit = "度"
 
-	opera.lube.coefficient = "lube"
-	opera.lube.name = "潤滑方式"
-	opera.lube.value = 0
-	opera.lube.unit = "(0=oilair 1=grease 2=oiljet)"
+	opera.Lube.coefficient = "lube"
+	opera.Lube.name = "潤滑方式"
+	opera.Lube.Value = 0
+	opera.Lube.unit = "(0=oilair 1=grease 2=oiljet)"
 
-	opera.btype.coefficient = "btype"
-	opera.btype.name = "軸承型式"
-	opera.btype.value = 0
-	opera.btype.unit = "(0=angular 1=roller)"
+	opera.Btype.coefficient = "btype"
+	opera.Btype.name = "軸承型式"
+	opera.Btype.Value = 0
+	opera.Btype.unit = "(0=angular 1=roller)"
 
-	opera.f0.coefficient = "f0"
-	opera.f0.name = "軸承潤滑定數"
-	opera.f0.unit = ""
+	opera.F0.coefficient = "f0"
+	opera.F0.name = "軸承潤滑定數"
+	opera.F0.unit = ""
 
-	opera.p0.coefficient = "p0"
-	opera.p0.name = "靜等價荷重"
-	opera.p0.unit = "N"
+	opera.P0.coefficient = "p0"
+	opera.P0.name = "靜等價荷重"
+	opera.P0.unit = "N"
 
-	opera.f1.coefficient = "f1"
-	opera.f1.name = "軸承型式定數"
-	opera.f1.unit = ""
+	opera.F1.coefficient = "f1"
+	opera.F1.name = "軸承型式定數"
+	opera.F1.unit = ""
 
-	opera.g1p0.coefficient = "g1p0"
-	opera.g1p0.name = "荷重常數"
-	opera.g1p0.unit = "kgf"
+	opera.G1p0.coefficient = "g1p0"
+	opera.G1p0.name = "荷重常數"
+	opera.G1p0.unit = "kgf"
 
-	opera.mv.coefficient = "mv"
-	opera.mv.name = "速度項"
-	opera.mv.unit = "kgf*m"
+	opera.Mv.coefficient = "mv"
+	opera.Mv.name = "速度項"
+	opera.Mv.unit = "kgf*m"
 
-	opera.ml.coefficient = "ml"
-	opera.ml.name = "荷重項"
-	opera.ml.unit = "kgf*m"
+	opera.Ml.coefficient = "ml"
+	opera.Ml.name = "荷重項"
+	opera.Ml.unit = "kgf*m"
 
-	opera.m.coefficient = "m"
-	opera.m.name = "動摩擦力矩"
-	opera.m.unit = "kgf*m"
+	opera.M.coefficient = "m"
+	opera.M.name = "動摩擦力矩"
+	opera.M.unit = "kgf*m"
 
-	opera.q.coefficient = "Q"
-	opera.q.name = "發熱量"
-	opera.q.unit = "kcal/h"
+	opera.Q.coefficient = "Q"
+	opera.Q.name = "發熱量"
+	opera.Q.unit = "kcal/h"
 }
 
 func main() {
 	opera.calc() //計算出結果
 	opera.prt()  //印出結果
 	var order Torder
-	order.Getorder()     //問問題
-	order.Dorder(&opera) //依照命令判斷參數正確與否
+	order.getOrder() //問問題
+	CallClear()      //清空
+	order.doOrder()  //依照命令判斷參數正確與否
 	main()
 }
 
-/*
-//tool------------------------------------------------------------------------
-func prtable(a []string, b []string, c []string) { //印出表格
-	alen, blen, clen := 0, 0, 0
-
-	for i := 0; i < len(a); i++ {
-		if strings.Count(a[i], "")-1 > alen {
-			alen = strings.Count(a[i], "") - 1
-		}
-		if strings.Count(b[i], "")-1 > blen {
-			blen = strings.Count(b[i], "") - 1
-		}
-		if strings.Count(c[i], "")-1 > clen {
-			clen = strings.Count(c[i], "") - 1
-		}
+func CallClear() { //清空用
+	var clear map[string]func()     //create a map for storing clear funcs
+	clear = make(map[string]func()) //Initialize it
+	clear["linux"] = func() {
+		cmd := exec.Command("clear") //Linux example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
 	}
-	for i := 0; i < len(a); i++ {
-		len := alen - strings.Count(a[i], "") + 1
-		for j := 0; j < len; j++ {
-			fmt.Printf("  ")
-		}
-		fmt.Printf(a[i] + ",")
-		len = blen - strings.Count(b[i], "") + 1
-		for k := 0; k < len; k++ {
-			fmt.Printf(" ")
-		}
-		fmt.Printf(b[i] + ",")
-		len = clen - strings.Count(c[i], "") + 1
-		for k := 0; k < len; k++ {
-			fmt.Printf(" ")
-		}
-		fmt.Println(c[i] + ",")
+	clear["windows"] = func() {
+		cmd := exec.Command("cmd", "/c", "cls") //Windows example, its tested
+		cmd.Stdout = os.Stdout
+		cmd.Run()
+	}
+	Value, ok := clear[runtime.GOOS] //runtime.GOOS -> linux, windows, darwin etc.
+	if ok {                          //if we defined a clear func for that platform:
+		Value() //we execute it
+	} else { //unsupported platform
+		panic("Your platform is unsupported! I can't clear terminal screen :(")
 	}
 }
-*/
